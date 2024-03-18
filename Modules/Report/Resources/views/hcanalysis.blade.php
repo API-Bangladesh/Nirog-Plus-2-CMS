@@ -591,7 +591,7 @@
 
             var r11= Addrow(11, [{
                 k: 'A',
-                v: 'Diastolic Range: ' + (currentDiastolicMin && currentDiastolicMax > 0 ? 'Min: '+ currentDiastolicMax + ' Max: ' + currentDiastolicMax : 'N/A'),
+                v: 'Diastolic Range: ' + (currentDiastolicMin && currentDiastolicMax > 0 ? 'Min: '+ currentDiastolicMin + ' Max: ' + currentDiastolicMax : 'N/A'),
             }]);
 
             var r12 = Addrow(12, [{
