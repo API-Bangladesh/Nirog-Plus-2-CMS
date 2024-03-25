@@ -271,7 +271,13 @@ class PrescriptionController extends BaseController
 
     public function searchid(Request $request) {
 
-        $prescriptions = Prescription::where('PrescriptionId', $request->prescription_id)->paginate(15);
+          $prescriptions = Prescription::with(['patient' => function($query) {
+                $query->select('PatientId', 'RegistrationId');
+            }])
+            ->join('Patient', 'PrescriptionCreation.PatientId', '=', 'Patient.PatientId')
+            ->where('Patient.RegistrationId', $request->prescription_id)
+            ->paginate(15);
+
 
          $this->setPageData('Prescription','All Prescription','fas fa-th-list');
         return view('prescription::index', compact('prescriptions'));

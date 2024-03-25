@@ -109,7 +109,7 @@
                     @csrf
                       <div class="form-group col-md-4">
                                 <label for="name">Search Prescription</label>
-                                <input type="text" class="form-control" name="prescription_id" id="prescription_id" placeholder="Enter Prescription ID">
+                                <input type="text" class="form-control" name="prescription_id" id="prescription_id" placeholder="Enter Patient RegistrationID">
                             </div>
                             <div class="form-group col-md-8 pt-24">
                                 <button type="button" class="btn btn-danger btn-sm float-right" id="btn-reset"
