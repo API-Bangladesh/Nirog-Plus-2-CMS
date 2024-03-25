@@ -310,6 +310,9 @@
                             month: 'short',
                             year: 'numeric'
                         });
+                        if (formattedDateString === '01 Jan 1900') {
+                            formattedDateString = ''; // Set to empty string
+                        }
                         var newRow = [
                             (index + 1),
                             result.RegistrationId,

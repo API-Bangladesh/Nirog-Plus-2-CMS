@@ -30,4 +30,19 @@ class Address extends BaseModel
   {
       return $this->belongsTo(Union::class, 'UnionId', 'id');
   }
+
+   public function districtAddressPermanent()
+    {
+        return $this->belongsTo(District::class, 'DistrictParmanent', 'id');
+    }
+
+  public function upazillaAddressPermanent()
+  {
+      return $this->belongsTo(Upazilla::class, 'ThanaParmanent', 'id');
+  }
+
+  public function unionAddressPermanent()
+  {
+      return $this->belongsTo(Union::class, 'UnionIdParmanent', 'id');
+  }
 }
