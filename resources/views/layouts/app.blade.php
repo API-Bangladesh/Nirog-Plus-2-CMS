@@ -13,7 +13,8 @@
     <title>{{ config('settings.title') ? config('settings.title') : env('APP_NAME') }} - @yield('title')</title>
 
     <!-- Site favicon -->
-    <link rel="shortcut icon" href="images/Logo.png" type="image/x-icon">
+<link rel="shortcut icon" href="{{ url(config('app.url') . '/public/storage/logo/' . config('settings.favicon')) }}" type="image/x-icon">
+
     <!-- /site favicon -->
 
     <link rel="stylesheet" href="css/app.css">

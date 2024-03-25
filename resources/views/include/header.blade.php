@@ -16,9 +16,9 @@
         <!-- Brand logo -->
         <span class="dt-brand__logo">
         <a class="dt-brand__logo-link" href="{{ url('/') }}">
-          <img class="d-none d-lg-inline-block" src="images/Logo.png" alt="Logo" style="max-width: 60px;"/>
+          <img class="d-none d-lg-inline-block" src="{{ url(config('app.url') . '/public/storage/logo/' . config('settings.logo')) }}" alt="Logo" style="max-width: 60px;"/>
           <!-- max-height:50px;-->
-          <img class="dt-brand__logo-symbol d-lg-none" src="images/Logo.png" alt="Logo"/>
+          <img class="dt-brand__logo-symbol d-lg-none" src="{{ url(config('app.url') . '/public/storage/logo/' . config('settings.logo')) }}" alt="Logo"/>
         </a>
       </span>
         <!-- /brand logo -->
