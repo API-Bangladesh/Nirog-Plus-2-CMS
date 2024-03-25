@@ -33,7 +33,7 @@ class HomeController extends Controller
             $GestationalDMCount = 0;
 
             foreach($branch_wise_disease_count as $branch_wise_disease){
-                if($branch_wise_disease->IllnessId=='DBB019E4-E1A1-460F-A874-C98101D006FB'){
+                if($branch_wise_disease->IllnessId=='81F1CECB-8B22-41D3-AE18-54CC2D79065F'){
                     $DM_count = $branch_wise_disease->count??0;
                 }
                 else if($branch_wise_disease->IllnessId=='A69382EF-905C-4FC1-BA32-53E86FC50E35'){

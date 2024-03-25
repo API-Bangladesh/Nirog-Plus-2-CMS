@@ -131,7 +131,7 @@ class Patient extends BaseModel
          $cc=$cc_prefix->barcode_prefix ?? '';
      
         $disease_array = [
-            'DBB019E4-E1A1-460F-A874-C98101D006FB',
+            '81F1CECB-8B22-41D3-AE18-54CC2D79065F',
             '81209B1C-8C0D-414C-A5ED-3D179F3B463A',
             '98E2AE4F-7639-49CA-A7AF-9FE396F5EDC2',
             'BB268EAB-EDD6-4D50-8886-C418C133C555',
