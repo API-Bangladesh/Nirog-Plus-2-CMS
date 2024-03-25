@@ -4,7 +4,7 @@
       <div class="container px-4"  id="prescription-print">
 
         <header class="header">
-          <p class="mb-0 pt-2 fs-"><b>Location :</b> Ukhia Upazila</p>
+          <p class="mb-0 pt-2 fs-"><b>Location :</b> {{$location->healthcenter->HealthCenterName}}</p>
           @foreach($prescriptionCreation as $pc)
           <h4 class="mb-0 p-3 text-center">Prescription {{ $pc->PrescriptionId }}</h4>
           @endforeach
