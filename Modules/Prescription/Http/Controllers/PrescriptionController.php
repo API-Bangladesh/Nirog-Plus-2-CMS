@@ -9,6 +9,7 @@ use Modules\Prescription\Entities\Prescription;
 use Modules\Patient\Entities\Patient;
 use Modules\Base\Http\Controllers\BaseController;
 use DB;
+use Modules\BarcodeFormat\Entities\BarcodeFormat;
 
 class PrescriptionController extends BaseController
 {
@@ -23,7 +24,10 @@ class PrescriptionController extends BaseController
     public function index()
     {
         if(permission('prescription-access')){
-             $prescriptions=Prescription::paginate(15);
+             $prescriptions = Prescription::with(['patient' => function($query) {
+                $query->select('PatientId', 'RegistrationId');
+            }])->paginate(15);
+           
             $this->setPageData('Prescription','All Prescription','fas fa-th-list');
             return view('prescription::index',compact('prescriptions'));
         }else{
@@ -122,6 +126,13 @@ class PrescriptionController extends BaseController
             $patient_id= $prescriptionDetails->PatientId;
 
             $patientDetails=Patient::with('Gender')->where('PatientId','=',$patient_id)->get();
+
+            $regId=Patient::where('PatientId','=',$patient_id)->get('RegistrationId')->first();
+            $prefix = substr($regId->RegistrationId, 0, 9); 
+            $location=BarcodeFormat::with('healthCenter')->where('barcode_prefix',$prefix)->first();
+
+
+            
 
             $prescriptionCreation= DB::select("SELECT PPC.PrescriptionId AS PrescriptionId,E.FirstName AS FirstName,E.LastName AS LastName,E.Designation AS Designation,E.EmployeeSignature AS EmployeeSignature, PPC.CreateDate
             FROM PrescriptionCreation as PPC 
@@ -224,7 +235,7 @@ class PrescriptionController extends BaseController
         }
 
         
-       return view('prescription::details',compact('patientDetails','prescriptionCreation','Complaints','HeightWeight','BP','GlucoseHb','ProvisionalDx','Investigation','Treatment','Advice','PatientReferral','FollowUpDate','TBSymptom','TBEFinding','TBEPastEvidence','TBPast'))->render();
+       return view('prescription::details',compact('patientDetails','prescriptionCreation','Complaints','HeightWeight','BP','GlucoseHb','ProvisionalDx','Investigation','Treatment','Advice','PatientReferral','FollowUpDate','TBSymptom','TBEFinding','TBEPastEvidence','TBPast','location'))->render();
     }
 
     /**

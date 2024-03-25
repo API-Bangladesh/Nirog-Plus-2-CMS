@@ -146,7 +146,7 @@
 
                                         <td>{{ $start++ }}</td>
                                         <td>{{$prescription->PrescriptionId}}</td>
-                                        <td>{{$prescription->PatientId}}</td>
+                                        <td>{{$prescription->patient->RegistrationId}}</td>
                                         <td>{{$prescription->CreateDate}}</td>
                                 
                                      <td> 
