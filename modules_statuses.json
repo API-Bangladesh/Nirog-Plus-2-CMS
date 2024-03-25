@@ -79,5 +79,7 @@
     "RefLabInvestigation": true,
     "RefAutoSuggestion": true,
     "RefAdvice": true,
-    "ProductionAPI": true
+    "ProductionAPI": true,
+    "District": true,
+    "Division": true
 }
