@@ -43,9 +43,9 @@
               <h5 class="mb-3 py-1 ps-2 border-start border-success text-success border-4 d-inline-block">Permanent Address</h5>
                 <p><span>Address :</span>  @if (!(empty($patientDetails->address))){{$patientDetails->address->AddressLine1Parmanent}} @endif</p>
                 <p><span>Village :</span>@if (!(empty($patientDetails->address))){{$patientDetails->address->VillageParmanent}} @endif</p>
-                <p><span>Union :</span>@if (!(empty($patientDetails->address))){{$patientDetails->address->ThanaParmanent}} @endif </p>
+                <p><span>Union :</span>@if (!(empty($patientDetails->address))){{$patientDetails->address->unionAddressPermanent->name}} @endif </p>
                 <p><span>Post Code :</span>@if (!(empty($patientDetails->address))){{$patientDetails->address->PostCodeParmanent}} @endif </p>
-                <p><span>District :</span>@if (!(empty($patientDetails->address))){{$patientDetails->address->DistrictParmanent}} @endif </p>
+                <p><span>District :</span>@if (!(empty($patientDetails->address))){{$patientDetails->address->districtAddressPermanent->name}}  @endif </p>
                 <p><span>Country :</span>@if (!(empty($patientDetails->address))){{$patientDetails->address->CountryParmanent}} @endif </p>
             </div>
             <div class="dataItem mt-5">

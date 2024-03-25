@@ -188,9 +188,9 @@
                                 
                                  <x-form.selectbox labelName="Union" name="Thana" required="required" col="col-md-6" class="selectpicker">
                               
-                                    @if( isset($address) && $address->Thana != '')
+                                    @if( isset($address) && $address->UnionId != '')
                                         @foreach ($upazilas as $upazila)
-                                        <option value="{{ $upazila->id }}"  {{ $address->Thana == $upazila->id ? 'selected' : '' }}>{{ $upazila->name ??'' }}</option>
+                                        <option value="{{ $upazila->id }}"  {{ $address->UnionId == $upazila->id ? 'selected' : '' }}>{{ $upazila->name ??'' }}</option>
                                         @endforeach
                              
                                     @else
@@ -229,9 +229,9 @@
 
                                 <x-form.selectbox labelName="Union" name="ThanaParmanent" required="required" col="col-md-6" class="selectpicker">
                           
-                                    @if(isset($address) && $address->ThanaParmanent != '')
+                                    @if(isset($address) && $address->UnionIdParmanent != '')
                                         @foreach ($upazilas as $upazila)
-                                        <option value="{{ $upazila->id }}"  {{ $address->ThanaParmanent == $upazila->id ? 'selected' : '' }}>{{ $upazila->name ??'' }}</option>
+                                        <option value="{{ $upazila->id }}"  {{ $address->UnionIdParmanent == $upazila->id ? 'selected' : '' }}>{{ $upazila->name ??'' }}</option>
                                         @endforeach
                               
                                     @else
