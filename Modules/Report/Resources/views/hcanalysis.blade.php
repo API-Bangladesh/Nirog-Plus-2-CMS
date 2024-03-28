@@ -701,15 +701,15 @@
 
                 // Check illness filter
                 var illnessMatch = currentIllnessFilter.every(function(illness) {
-                    return illnessString.includes("IllnessCode:" + illness);
+                    return illnessString.includes(illness);
                 });
 
                  var complainMatch = currentComplainFilter.every(function(complain) {
-                     return complainString.includes("Chief Complain:" + complain);
+                     return complainString.includes(complain);
                  });
 
                 var medMatch = currentMedicineFilter.every(function(med) {
-                    return medString.includes("Drug Name:" + med);
+                    return medString.includes(med);
                 });
 
                 var prodxMatch = currentProdxFilter.every(function(dx) {
