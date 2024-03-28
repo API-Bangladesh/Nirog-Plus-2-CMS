@@ -204,9 +204,9 @@
 
                                 <x-form.selectbox labelName="District" name="District" required="required" col="col-md-6" class="selectpicker">
                                   
-                                    @if( isset($address) && $address->DistrictParmanent != '')
+                                    @if( isset($address) && $address->District != '')
                                         @foreach ($districts as $district)
-                                        <option value="{{ $district->id }}"  {{ $address->DistrictParmanent == $district->id ? 'selected' : '' }}>{{ $district->name ??'' }}</option>
+                                        <option value="{{ $district->id }}"  {{ $address->District == $district->id ? 'selected' : '' }}>{{ $district->name ??'' }}</option>
                                         @endforeach
                            
                                     @else

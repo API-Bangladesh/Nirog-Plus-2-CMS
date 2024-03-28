@@ -27,7 +27,7 @@
                 <p><span>Patient Age :</span> {{ $patientDetails->Age }}</p>
                 <p><span>Contact Number :</span> {{ $patientDetails->CellNumber }}</p>
                 <p><span>Gender :</span> {{ $patientDetails->Gender->GenderCode }}</p>
-                <p><span>NID :</span> {{ $patientDetails->IdNumber }} (<span>@if (!(empty($patientDetails->self_type->HeadOfFamilyCode))){{$patientDetails->self_type->HeadOfFamilyCode}} @endif </span>)</p>
+                <p><span>NID :</span> {{ $patientDetails->IdNumber }} (<span>@if (!(empty($patientDetails->self_type->HeadOfFamilyCode))){{$patientDetails->self_type->HeadOfFamilyCode ?? ''}} @endif </span>)</p>
                 <p><span>Marital Status :</span> {{ $patientDetails->MaritalStatus->MaritalStatusCode }}</p>
             </div>
             <div class="dataItem mt-5">
