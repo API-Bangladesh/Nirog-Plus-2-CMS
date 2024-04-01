@@ -517,17 +517,27 @@ public static function SendConditionPayload($accessToken, $identifier, $sending_
 public static function SendMedicinePayload($accessToken, $identifier, $sending_patient)
 {
        
-        $patients = ApiMedicineTrigView::where('identifier', '=', $identifier)
-                                  ->take($sending_patient)
-                                  ->get();
+        // $patients = ApiMedicineTrigView::where('identifier', '=', $identifier)
+        //                           ->take($sending_patient)
+        //                           ->get();
+         $distinctPatients  = ApiMedicineTrigView::where('identifier', '=', $identifier)
+                                        ->distinct('PatientId')
+                                        ->take($sending_patient)
+                                        ->pluck('PatientId');
+
         $successResponses = [];
         $errorResponses = [];
+      
 
+        foreach ($distinctPatients as $patientId) {
+        // Get medicines for the current patient
+        $patientMedicines = ApiMedicineTrigView::where('identifier', '=', $identifier)
+            ->where('PatientId', $patientId)
+            ->get();
 
-        // Prepare patient data array
-
-        // Loop through the patients and format the data
-    foreach ($patients as $patientMed) {
+        // Prepare medication data for the current patient
+        $patientData = [];
+        foreach ($patientMedicines  as $patientMed) {
        $timeUnit = $patientMed->DrugDurationValue;
 
 // Define a mapping of time units to their equivalent days
@@ -634,15 +644,23 @@ public static function SendMedicinePayload($accessToken, $identifier, $sending_p
 
         if (isset($registrationResponse['error'])) {
             // Handle registration error
-            ApiPatientList::where('PatientId', $patientMed->PatientId)->update(['MedicineStatus' => 'error']);
+            ApiPatientList::where('PatientId', $patientId)->update(['MedicineStatus' => 'error']);
             $errorResponses[] = ['error' => $registrationResponse['error']];
         } elseif ($registrationResponse['status'] == 202) {
             // Update registration status for successful registration
-            ApiPatientList::where('PatientId', $patientMed->PatientId)->update(['MedicineStatus' => 'sent']);
+            ApiPatientList::where('PatientId', $patientId)->update(['MedicineStatus' => 'sent']);
             $successResponses[] = ['message' => 'Patient Medication sent successfully'];
         }
 
         }
+
+    }
+
+
+        // Prepare patient data array
+
+        // Loop through the patients and format the data
+  
                 return [
                     'successResponses' => $successResponses,
                     'errorResponses' => $errorResponses

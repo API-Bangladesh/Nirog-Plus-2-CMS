@@ -56,8 +56,16 @@
                                 </div>
 
 
-                                <x-form.textbox type="number" labelName="Total Unsent" readonly  name="total_unsent" id="total_unsent" col="col-md-3" value="" />
-                                <x-form.textbox type="number" labelName="Sending Now (Max 99)" id="sending_now" name="sending_now" col="col-md-3" value="" />
+                                <x-form.textbox type="number" labelName="Total Unsent Patients" readonly  name="total_unsent" id="total_unsent" col="col-md-2" value="" />
+                                 <x-form.textbox type="number" labelName="Sending Patients" name="sending_patient" id="sending_patient" col="col-md-2" value="" />
+                                <div class="form-group col-md-2 ml-3 pt-5 mt-1">
+                                    <button type="button" class="btn btn-primary btn-sm" id="get_count">Get Count</button>
+                                </div>
+                                <x-form.textbox type="number" labelName="Medicine Data(Max 99) " id="sending_now" name="sending_now" col="col-md-2" value="" />
+                                <div class="col-md-2 warning-exceed invisible" id="warning-searching">
+                                    <span class="text-danger" id="warning-message">Max limit Exceeded,Please Insert Fewer Patient</span>
+                                   
+                                </div>
 
 
                             </div>
@@ -72,7 +80,7 @@
 
                 <!-- Modal Footer -->
             <div class="row">
-                <div class="form-group col-md-2 ml-3">
+                <div class="form-group col-md-2 ml-3 ">
                     <button type="button" class="btn btn-primary btn-sm" id="send">Send</button>
                 </div>
                  <div class="col-md-8 warning-sending invisible" id="warning-sending">
@@ -116,7 +124,7 @@ toastr.options = {
     $('#send').click(function () {
 
         var identifier = $('#identifier').val();
-        const send_patient = $('#sending_now').val();
+        const send_patient = $('#sending_patient').val();
         $.ajax({
             type: "GET",
             url: "{{ url('send-patient-medicine') }}",
@@ -137,7 +145,7 @@ toastr.options = {
                 } else {
                        const successCount = response.success.length;
                     // Display a success Toastr alert with the count
-                    toastr.success(`${successCount} patient(s) Medication Sent successfully`, 'Success');
+                    toastr.success(`${successCount} Medication Sent successfully`, 'Success');
                     // Display a success Toastr alert
 
                 }
@@ -152,6 +160,36 @@ toastr.options = {
     });
     $('#sending_now').prop('disabled', true);
     $('#send').prop('disabled', true);
+
+       $('#get_count').click(function () {
+
+        var identifier = $('#identifier').val();
+        const sending_patient = $('#sending_patient').val();
+        $.ajax({
+            type: "GET",
+            url: "{{ url('count-patient-medicine') }}",
+            data: { identifier: identifier, sending_patient: sending_patient},
+            beforeSend: function () {
+                 $('#warning-sending').removeClass('invisible');
+            },
+            complete: function () {
+                $('#warning-sending').addClass('invisible');
+            },
+            success: function (response) {
+            if (response.totalCount > 99) {
+                // If total count exceeds 99, disable the send button
+                $('#send').prop('disabled', true);
+                $('#warning-exceed').removeClass('invisible');
+            } else {
+                // If total count is 99 or less, enable the send button
+                $('#send').prop('disabled', false);
+                $('#warning-exceed').addClass('invisible');
+            }
+            // Set the total count in the sending_now field
+            $('#sending_now').val(response.totalCount);
+        },
+        });
+    });
 
     $('#identifier').change(function () {
 
@@ -172,21 +210,21 @@ toastr.options = {
                 var unsents = response.unsent ?? '0';
                 $('#total_unsent').val(unsents);
 
-                maxSendingNow = Math.min(unsents, 99);
-                 $('#sending_now').prop('disabled', false).attr('max', maxSendingNow);
-                 // Enable and set max attribute of sending_now input
+                // maxSendingNow = Math.min(unsents, 99);
+                //  $('#sending_now').prop('disabled', false).attr('max', maxSendingNow);
+                //  // Enable and set max attribute of sending_now input
 
-                  if (unsents === 0) {
-                     maxSendingNow = 0;
-                 }
-                // Handle input event on sending_now input
-                $('#sending_now').on('input', function () {
-                    var sendingNowValue = parseInt($(this).val());
-                    if (sendingNowValue > maxSendingNow) {
-                        $(this).val(maxSendingNow); // Set input value to maxSendingNow if it exceeds the maximum
-                    }
-                    $('#send').prop('disabled', $(this).val() === "");
-                });
+                //   if (unsents === 0) {
+                //      maxSendingNow = 0;
+                //  }
+                // // Handle input event on sending_now input
+                // $('#sending_now').on('input', function () {
+                //     var sendingNowValue = parseInt($(this).val());
+                //     if (sendingNowValue > maxSendingNow) {
+                //         $(this).val(maxSendingNow); // Set input value to maxSendingNow if it exceeds the maximum
+                //     }
+                //     $('#send').prop('disabled', $(this).val() === "");
+                // });
             }
 
         });

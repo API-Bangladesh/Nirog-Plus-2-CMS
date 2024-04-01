@@ -33,6 +33,7 @@ Route::get('send-patient-bs', 'PatientBsController@register')->name('send-patien
 // Medicine
 Route::get('patient-medicine', 'PatientMedicineController@index')->name('patient-medicine');
 Route::get('get-patient-medicine', 'PatientMedicineController@GetCount')->name('get-patient-medicine');
+Route::get('count-patient-medicine', 'PatientMedicineController@GetRowCount')->name('count-patient-medicine');
 Route::get('send-patient-medicine', 'PatientMedicineController@register')->name('send-patient-medicine');
 
 // Scheduled Status

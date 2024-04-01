@@ -72,12 +72,46 @@ class PatientMedicineController extends BaseController
     public function GetCount(Request $request)
     {
         $identifier=$request->identifier;
-        $unsent = ApiMedicineTrigView::where('identifier',$identifier)->count();
+        $unsent = ApiMedicineTrigView::where('identifier',$identifier)->distinct()->count('PatientId');
+        // $unsent = ApiMedicineTrigView::where('identifier',$identifier)->count();
+
 
         return response()->json([
         'unsent'=>$unsent
     ]);
 
+    
+
 
     }
+ public function GetRowCount(Request $request)
+{
+    $identifier = $request->identifier;
+    $sending_patient = $request->sending_patient;
+
+    // Fetch the distinct patients based on the provided identifier
+    $patients = ApiMedicineTrigView::where('identifier', '=', $identifier)
+        ->distinct('PatientId')
+        ->take($sending_patient)
+        ->pluck('PatientId');
+
+    // Fetch the count of medicines for each patient
+    $medicineCounts = ApiMedicineTrigView::where('identifier', '=', $identifier)
+        ->whereIn('PatientId', $patients)
+        ->groupBy('PatientId')
+        ->selectRaw('COUNT(*) as medicine_count')
+        ->get();
+
+    // Calculate the total count of medicines
+    $totalCount = $medicineCounts->sum('medicine_count');
+
+ 
+
+    // Return the total count of medicines
+    return response()->json([
+        'totalCount' => $totalCount
+    ]);
+}
+
+
 }
