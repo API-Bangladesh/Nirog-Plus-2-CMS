@@ -877,6 +877,8 @@
 
                         var mdataBarcodePrefixNumber = barcode.mdata_barcode_prefix_number;
                         var mdataBarcodeaddress = barcode.address;
+                        mdataBarcodeaddress = mdataBarcodeaddress.replace(/Coxsbazar|Coxs\sBazar/g, "Cox's Bazar");
+                   
                         var fontSize = mdataBarcodeaddress.length > 70 ? "8px" : "8px";
                         console.log(mdataBarcodeaddress.length);
                         if (mdataBarcodePrefixNumber) {
