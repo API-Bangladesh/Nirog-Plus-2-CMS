@@ -980,10 +980,21 @@
         
 function capitalizeAndJoin(str,fontSize) {
     let lines = str.split(",");
+    console.log(lines);
+    if (lines[0].toLowerCase().includes("jalia palong")) {
+            lines[0] = "Jalia Palong Union Health Center";
+        } else if (lines[0].toLowerCase().includes("juud pukur paar cc")) {
+            lines[0] = "Jura Pukurpar Community Clinic";
+        } else if (lines[0].toLowerCase().includes("palongkhali")) {
+            lines[0] = "Palongkhali Union Health Center";
+        } else if (lines[0].toLowerCase().includes("ratna palong")) {
+            lines[0] = "Ratnapalong Union Health Center";
+        }
     let firstLineWords = lines[0].split(" ");
     let secondLineWords = lines[1].split(", ");
     let thirdLineWords = lines[2].split(", ");
     let forthLineWords = lines[3].split(", ");
+ 
 
     // Capitalize every word in each line and change "Coxs" to "Cox's"
     for (let i = 0; i < lines.length; i++) {
