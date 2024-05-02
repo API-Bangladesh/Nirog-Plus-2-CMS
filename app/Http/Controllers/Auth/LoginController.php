@@ -141,6 +141,7 @@ class LoginController extends Controller
  protected function sendLoginResponse(Request $request)
     {
         if( Auth::user()->role_id == 1 || Auth::user()->role_id == 2){
+             $request->session()->put('login_prefix', 'admin');
             $request->session()->regenerate();
 
             $this->clearLoginAttempts($request);
@@ -161,7 +162,10 @@ class LoginController extends Controller
             $findId = BarcodeFormat::with('healthCenter')->where('id', DB::raw($CCID))->first();
 
             $uid=$findId->barcode_upazila;
+            $login_prefix=$findId->barcode_prefix;
+            $request->session()->put('login_prefix', $login_prefix);
             $HCName=$findId->healthCenter->HealthCenterName;
+          
 
             if(stripos($HCName, 'Health Complex') !== false){
                 $request->session()->regenerate();
@@ -316,6 +320,7 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
+        $request->session()->forget('login_prefix');
         $this->guard()->logout();
 
         $request->session()->invalidate();

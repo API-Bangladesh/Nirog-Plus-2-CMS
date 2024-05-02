@@ -105,8 +105,10 @@ class Patient extends BaseModel
     public static function get_branch_name()
     {
 
-         $cc_prefix=BarcodeFormat::where('id',Auth::user()->cc_id)->first('barcode_prefix');
-        return HealthCenter::where('HealthCenterCode',$cc_prefix->barcode_prefix ??'')->first()->HealthCenterName ?? '';
+         $cc_prefix=BarcodeFormat::where('id',Auth::user()->cc_id)->first('barcode_community_clinic');
+
+      
+        return HealthCenter::where('HealthCenterId',$cc_prefix->barcode_community_clinic ??'')->first()->HealthCenterName ?? '';
   
     }
 
