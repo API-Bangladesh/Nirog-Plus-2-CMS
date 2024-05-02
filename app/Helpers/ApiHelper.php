@@ -540,6 +540,8 @@ public static function SendMedicinePayload($accessToken, $identifier, $sending_p
         foreach ($patientMedicines  as $patientMed) {
        $timeUnit = $patientMed->DrugDurationValue;
 
+     
+
 // Define a mapping of time units to their equivalent days
         $timeUnitToDays = [
             'day' => 1,
@@ -554,16 +556,27 @@ public static function SendMedicinePayload($accessToken, $identifier, $sending_p
         ];
 
         // Extract the numeric value and units from the time unit string
-        preg_match('/(\d+) (\w+)/', $timeUnit, $matches);
+        preg_match('/(\d+)?\s*(\w+)/', $timeUnit, $matches);
+
+
+        
 
         // Numeric value
-        $numericValue = intval($matches[1]);
+        $numericValue = $matches[1] !== "" ? intval($matches[1]) : 1;
+
 
         // Units
         $units = strtolower($matches[2]);
 
+        
+        //  dd($numericValue,$units);
+
         // Calculate the equivalent days
         $days = $numericValue * $timeUnitToDays[$units];
+
+        
+
+       
 
 
         preg_match('/(\d+(?:\.\d+)?)\s*(\w+)/', $patientMed->DrugDose, $dosematches);

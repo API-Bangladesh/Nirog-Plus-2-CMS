@@ -8,7 +8,7 @@ use Modules\Base\Entities\BaseModel;
 
 class ApiPatientList extends BaseModel
 {
-    protected $table = 'ApiPateintList';
+    protected $table = 'ApiPateintLists';
 
     protected $guarded = [];
 
