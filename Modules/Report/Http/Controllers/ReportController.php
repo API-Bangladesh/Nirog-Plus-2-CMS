@@ -1107,7 +1107,9 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
     
         $first_date = $request->fdate;
         $last_date = $request->ldate;
-        $barcode_prefix = $request->hc_id;
+        // $barcode_prefix = $request->hc_ids;
+        $barcode_prefixes = $request->hc_ids;
+     
         $starting_age = $request->starting_age;
         $ending_age = $request->ending_age;
 
@@ -1146,9 +1148,13 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
         )
         ->whereDate('MDataProvisionalDiagnosis.CreateDate', '>=', $first_date)
         ->whereDate('MDataProvisionalDiagnosis.CreateDate', '<=', $last_date)
-        ->where(function($query) use ($barcode_prefix,$starting_age,$ending_age) {
-            if ($barcode_prefix) {
-                $query->where('Patient.RegistrationId', 'LIKE', $barcode_prefix . '%');
+        ->where(function($query) use ($barcode_prefixes,$starting_age,$ending_age) {
+            if (!empty($barcode_prefixes)) {
+                $query->where(function($q) use ($barcode_prefixes) {
+                    foreach ($barcode_prefixes as $prefix) {
+                        $q->orWhere('Patient.RegistrationId', 'LIKE', $prefix . '%');
+                    }
+                });
             } 
             if ($starting_age !== null) {
                 $query->where(DB::raw('CAST(Patient.Age AS INT)'), '>=', $starting_age);
@@ -1164,13 +1170,15 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
         )
         ->get();
 
-                $hcname=HealthCenter::where('HealthCenterCode',$barcode_prefix )->first('HealthCenterName');
-                $response = [
-                    'healthcenter' => $hcname->HealthCenterName ?? 'All',	
-                    'results' => $results,
-                    'first_date' => $first_date,
-                    'last_date' => $last_date,
-                ];
+            $hcnames = HealthCenter::whereIn('HealthCenterCode', $barcode_prefixes)->pluck('HealthCenterName')->toArray();
+            $healthcenter = implode(', ', $hcnames) ?: 'All';
+            $response = [
+                'healthcenter' => $healthcenter,
+                'results' => $results,
+                'first_date' => $first_date,
+                'last_date' => $last_date,
+            ];
+
         
             return response()->json($response);
 

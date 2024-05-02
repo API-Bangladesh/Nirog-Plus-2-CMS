@@ -58,7 +58,7 @@
                             <div class="form-group col-md-3">
                                 <label for="name">Branches</label>
 
-                                <select class="selectpicker" data-live-search="true" name="hc_id" id="hc_id">
+                                <select class="selectpicker" data-live-search="true" name="hc_id[]" id="hc_id" multiple>
                                     <option value="">Select Branch</option> <!-- Empty option added -->
                                     @foreach($branches as $branch)
                                     <option value="{{$branch->barcode_prefix}}">{{$branch->healthCenter->HealthCenterName}}</option>
@@ -287,7 +287,11 @@
         $.ajax({
             type: "GET",
             url: "{{ url('agewisedxreport') }}",
-            data: { hc_id: hc_id, fdate: fdate, ldate: ldate},
+            data: { 
+            hc_ids: hc_id, // Serialize selected values
+            fdate: fdate, 
+            ldate: ldate
+        },
             beforeSend: function () {
                 $('#warning-searching').removeClass('invisible');
             },
