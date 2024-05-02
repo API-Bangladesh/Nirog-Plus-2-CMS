@@ -114,10 +114,20 @@
                 <form action="{{ route('patient.searchid') }}" method="POST">
                 <div class="row" >
                     @csrf
-                      <div class="form-group col-md-4">
+                      {{-- <div class="form-group col-md-4">
                                 <label for="name">Search Patient</label>
                                 <input type="text" class="form-control" name="patient_id" id="patient_id" placeholder="Enter Patient ID">
+                            </div> --}}
+
+                            <div class="form-group col-md-4">
+                                    <label for="name">Search Patient</label>
+                                    @php
+                                        $loginPrefix = session('login_prefix');
+                                        $prefixValue = $loginPrefix && $loginPrefix !== 'admin' ? $loginPrefix : '';
+                                    @endphp
+                                    <input type="text" class="form-control" name="patient_id" id="patient_id" placeholder="Enter Patient ID" value="{{ $prefixValue }}">
                             </div>
+
                             <div class="form-group col-md-8 pt-24">
                                 <button type="button" class="btn btn-danger btn-sm float-right" id="btn-reset"
                                data-toggle="tooltip" data-placement="top" data-original-title="Reset Data">

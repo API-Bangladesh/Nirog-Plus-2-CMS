@@ -105,10 +105,13 @@ class Patient extends BaseModel
     public static function get_branch_name()
     {
 
-         $cc_prefix=BarcodeFormat::where('id',Auth::user()->cc_id)->first('barcode_community_clinic');
+         $cc_prefix=BarcodeFormat::where('id',Auth::user()->cc_id)->first('barcode_community_clinic') ?? '';
 
-      
-        return HealthCenter::where('HealthCenterId',$cc_prefix->barcode_community_clinic ??'')->first()->HealthCenterName ?? '';
+         if (!empty($cc_prefix)) {
+         return HealthCenter::where('HealthCenterId',$cc_prefix->barcode_community_clinic ??'')->first()->HealthCenterName;
+        } else {
+            return '';
+        }
   
     }
 
@@ -129,7 +132,7 @@ class Patient extends BaseModel
     public static function get_branch_wise_disease_count()
     {
    
-         $cc_prefix=BarcodeFormat::where('id',Auth::user()->cc_id)->first('barcode_prefix');
+         $cc_prefix=BarcodeFormat::where('id',Auth::user()->cc_id)->first('barcode_prefix') ?? '';
          $cc=$cc_prefix->barcode_prefix ?? '';
      
         $disease_array = [
