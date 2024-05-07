@@ -60,6 +60,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('patient-wise-dx', 'ReportController@patientwisedxreport')->name('patient-wise-dx');
 
     Route::get('agewisedx', 'ReportController@patientagewisedxindex')->name('agewisedx');
+    Route::get('patientcountagewise', 'ReportController@PatientCountAgeWise')->name('patientcountagewise');
     Route::get('agewisedxreport', 'ReportController@PatientagewisedxReport')->name('agewisedxreport');
 
     Route::get('treatment', 'ReportController@treatmentindex')->name('treatment');
@@ -82,7 +83,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('diabatesstatus', 'ReportController@DiabatesStatus')->name('diabatesstatus');
     Route::get('diabatesstatus-report', 'ReportController@DiabatesStatusReport')->name('diabatesstatus-report');
 
-    Route::get('patientcountagewise', 'ReportController@PatientCountAgeWise')->name('patientcountagewise');
+    
     // Route::get('hypertension-report', 'ReportController@HyperTensionReport')->name('hypertension-report');
     Route::get('hcanalysis', 'ReportController@hcanalysisindex')->name('hcanalysis');
     Route::get('hcanalysis-report', 'ReportController@hcanalysisreport')->name('hcanalysis-report');
@@ -92,6 +93,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('all-medicines', 'ReportController@GetAllMedicines')->name('allmedicines');
     Route::get('all-prodxs', 'ReportController@GetAllProDxs')->name('allprodxs');
     Route::get('all-genders', 'ReportController@GetAllGenders')->name('allgenders');
+
+    Route::get('simple-patient', 'ReportController@GetSimplePatientList')->name('simplepatient');
+    
 
 
     Route::group(['prefix' => 'patientage', 'as'=>'patientage.'], function () {

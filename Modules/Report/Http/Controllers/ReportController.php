@@ -78,7 +78,13 @@ class ReportController extends BaseController
     public function patientwisedxindex(){
         // $healthcenters=BarcodeFormat::with('healthCenter')->get();
         
-       $branches=BarcodeFormat::with('healthCenter')->get(); 
+       $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        }
+        
         $this->setPageData('Provisional Diagnosis','Provisional Diagnosis','fas fa-th-list');
         return view('report::provisionaldx',compact('branches'));
     }
@@ -103,13 +109,24 @@ public function diseaseindex()
 
     }
      public function patientagewisedxindex(){
-        $branches=BarcodeFormat::with('healthCenter')->get(); 
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        }
+        
         $this->setPageData('Provisional Diagnosis Age wise','Provisional Diagnosis Age wise','fas fa-th-list');
         return view('report::agewisedx',compact('branches'));
 
     }
        public function PatientCountAgeWise(){
-        $branches=BarcodeFormat::with('healthCenter')->get(); 
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        } 
         $this->setPageData('Provisional Diagnosis Patient Count Age wise','Provisional Diagnosis Patient Count Age wise','fas fa-th-list');
         return view('report::patientcountagewise',compact('branches'));
 
@@ -909,22 +926,7 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
         $last_date = $request->ldate;
         $barcode_prefix = $request->hc_id;
 
-        // $results = DB::table("MDataProvisionalDiagnosis")
-        //     ->select(
-        //         DB::raw("CONVERT(varchar, MDataProvisionalDiagnosis.CreateDate, 106) as CreateDate"),
-        //         'ProvisionalDiagnosis',
-        //         DB::raw('COUNT(MDataProvisionalDiagnosis.PatientId) as Total')
-        //     )
-        //     ->whereDate('MDataProvisionalDiagnosis.CreateDate', '>=', $first_date)
-        //     ->whereDate('MDataProvisionalDiagnosis.CreateDate', '<=', $last_date)
-        //     ->where(function($query) use ($barcode_prefix) {
-        //         if ($barcode_prefix) {
-        //             $query->where('Patient.RegistrationId', 'LIKE', $barcode_prefix . '%');
-        //         }
-        //     })
-        //     ->join('Patient', 'MDataProvisionalDiagnosis.PatientId', '=', 'Patient.PatientId')
-        //     ->groupBy(DB::raw("CONVERT(varchar, MDataProvisionalDiagnosis.CreateDate, 106)"), 'ProvisionalDiagnosis')
-        //     ->get();
+    
 
 
         $results = DB::table("MDataProvisionalDiagnosis")
@@ -977,7 +979,7 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
     
         $first_date = $request->fdate;
         $last_date = $request->ldate;
-        $barcode_prefix = $request->hc_id;
+        $barcode_prefixes = $request->hc_ids;
 
 
          $results = DB::table("MDataProvisionalDiagnosis")
@@ -997,10 +999,14 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
     
     ->whereDate('MDataProvisionalDiagnosis.CreateDate', '>=', $first_date)
     ->whereDate('MDataProvisionalDiagnosis.CreateDate', '<=', $last_date)
-    ->where(function($query) use ($barcode_prefix) {
-        if ($barcode_prefix) {
-            $query->where('Patient.RegistrationId', 'LIKE', $barcode_prefix . '%');
-        }
+    ->where(function($query) use ($barcode_prefixes) {
+         if (!empty($barcode_prefixes)) {
+                $query->where(function($q) use ($barcode_prefixes) {
+                    foreach ($barcode_prefixes as $prefix) {
+                        $q->orWhere('Patient.RegistrationId', 'LIKE', $prefix . '%');
+                    }
+                });
+            } 
     })
     ->join('Patient', 'MDataProvisionalDiagnosis.PatientId', '=', 'Patient.PatientId')
     ->join('RefGender', 'RefGender.GenderId', '=', 'Patient.GenderId')
@@ -1019,9 +1025,11 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
     )
     ->get();
             $resultCount = $results->count();
-            $hcname=HealthCenter::where('HealthCenterCode',$barcode_prefix )->first('HealthCenterName');
+            $branches = BarcodeFormat::with('healthCenter')->whereIn('barcode_prefix', $barcode_prefixes)->get();
+            $hcnames = $branches->pluck('healthCenter.HealthCenterName')->toArray();
+            $healthcenter = implode(',', $hcnames) ?: 'All';
             $response = [
-                'healthcenter' => $hcname->HealthCenterName ?? 'All',	
+                'healthcenter' => $healthcenter,	
                 'results' => $results,
                 'resultCount' => $resultCount,
                 'first_date' => $first_date,
@@ -1103,13 +1111,9 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
     }
        public function PatientagewisedxReport(Request $request){
        
-       
-    
         $first_date = $request->fdate;
         $last_date = $request->ldate;
-        // $barcode_prefix = $request->hc_ids;
         $barcode_prefixes = $request->hc_ids;
-     
         $starting_age = $request->starting_age;
         $ending_age = $request->ending_age;
 
@@ -1170,8 +1174,9 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
         )
         ->get();
 
-            $hcnames = HealthCenter::whereIn('HealthCenterCode', $barcode_prefixes)->pluck('HealthCenterName')->toArray();
-            $healthcenter = implode(', ', $hcnames) ?: 'All';
+            $branches = BarcodeFormat::with('healthCenter')->whereIn('barcode_prefix', $barcode_prefixes)->get();
+            $hcnames = $branches->pluck('healthCenter.HealthCenterName')->toArray();
+            $healthcenter = implode(',', $hcnames) ?: 'All';
             $response = [
                 'healthcenter' => $healthcenter,
                 'results' => $results,
@@ -1185,8 +1190,8 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
     }
 
       public function SearchByHC(Request $request){
-         $healthcenters=HealthCenter::get(['HealthCenterId','HealthCenterName']);
-         $refcases=RefReferral::get(['RId','Description']);
+        $healthcenters=HealthCenter::get(['HealthCenterId','HealthCenterName']);
+        $refcases=RefReferral::get(['RId','Description']);
 
         $daterange = $request->daterange;
         $dates = explode(' - ', $daterange);

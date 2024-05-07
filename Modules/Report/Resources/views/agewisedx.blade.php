@@ -58,7 +58,7 @@
                             <div class="form-group col-md-3">
                                 <label for="name">Branches</label>
 
-                                <select class="selectpicker" data-live-search="true" name="hc_id[]" id="hc_id" multiple>
+                                <select class="selectpicker" data-actions-box="true" data-live-search="true" name="hc_id[]" id="hc_id" multiple>
                                     <option value="">Select Branch</option> <!-- Empty option added -->
                                     @foreach($branches as $branch)
                                     <option value="{{$branch->barcode_prefix}}">{{$branch->healthCenter->HealthCenterName}}</option>
@@ -141,10 +141,7 @@
     var end = moment();
 
 
-    function cb(start, end) {
-        console.log("Selected Date Range: " + start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-       
-    }
+
 
     $('input[name="daterange"]').daterangepicker({
         startDate: start,
@@ -162,9 +159,9 @@
             'This Year': [moment().startOf('year'), moment().endOf('year')],
             // Add more custom ranges here...
         }
-    }, cb);
+    });
 
-    cb(start, end);
+
     $('.daterangepicker').mouseleave(function() {
         $(this).hide();
     });
@@ -174,7 +171,7 @@
 
 
     var table;
-    var healthcenter='';
+    var healthcenter=[];
     var collectionDate='';
     var patients;
     var now = new Date();
@@ -190,6 +187,7 @@
 
     
     $(document).ready(function () {
+
     table = $('#dataTable').DataTable({
         pagingType: 'full_numbers',
         dom: 'Bfrtip',
@@ -201,10 +199,11 @@
                 text: 'Export to Excel',
                 filename: filename,
                 title: '',
-                customize: function(xlsx,resultCount) {
+        customize: function(xlsx,resultCount) {
             var sheet = xlsx.xl.worksheets['sheet1.xml'];
             var downrows = 5; // Number of rows to add
             var clRow = $('row', sheet);
+
 
             // Update Row
             clRow.each(function() {
@@ -244,9 +243,12 @@
                 v: 'App Name: Nirog Plus'
             }]);
 
+            function encodeXML(s) {
+                return s.replace(/&/g, '&amp;');
+            }
             var r2 = Addrow(2, [{
                 k: 'A',
-                v: 'Branch:'+healthcenter,
+                v: 'Branch:' + encodeXML(healthcenter),
             }]);
 
             var r3 = Addrow(3, [{
@@ -284,14 +286,14 @@
         const ending_age = $('#ending_age').val();
     
 
-        $.ajax({
+    $.ajax({
             type: "GET",
             url: "{{ url('agewisedxreport') }}",
             data: { 
             hc_ids: hc_id, // Serialize selected values
             fdate: fdate, 
             ldate: ldate
-        },
+            },
             beforeSend: function () {
                 $('#warning-searching').removeClass('invisible');
             },
@@ -301,6 +303,8 @@
             success: function (response) {
                 var results = response.results;
                 healthcenter = response.healthcenter;
+  
+            
                 var firstDate = new Date(response.first_date);
                 var lastDate = new Date(response.last_date);
 

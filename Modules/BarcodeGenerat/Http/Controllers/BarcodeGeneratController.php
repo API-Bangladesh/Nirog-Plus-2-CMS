@@ -2,11 +2,12 @@
 
 namespace Modules\BarcodeGenerat\Http\Controllers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Modules\BarcodeGenerat\Entities\BarcodeGenerate;
 use Modules\BarcodeFormat\Entities\BarcodeFormat;
 use Modules\Base\Http\Controllers\BaseController;
 use Modules\BarcodeGenerat\Http\Requests\BarcodeGenerateFormRequest;
-use DB;
+
 use Carbon\Carbon;
 use Milon\Barcode\DNS1D;
 use Auth;
@@ -85,6 +86,17 @@ class BarcodeGeneratController extends BaseController
 
         set_time_limit(3600);
         $data = array();
+        $maxId = DB::select("SELECT MAX(id) AS max_id FROM NIROGPlus.dbo.mdatacc_barcodes");
+
+        // Extracting the maximum id value
+        $maxIdValue = $maxId[0]->max_id;
+       
+
+        // Query to reset the identity seed
+        $resetQuery = "DBCC CHECKIDENT ('NIROGPlus.dbo.mdatacc_barcodes', RESEED, $maxIdValue)";
+
+        // Executing the reset query
+        DB::unprepared($resetQuery);
         $data['code_format'] = $request->mdata_barcode_prefix;
         $data['range'] = $request->mdata_barcode_number;
         $data['generate'] = $request->mdata_barcode_generate;
