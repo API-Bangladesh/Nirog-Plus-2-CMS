@@ -100,7 +100,13 @@ public function diseaseindex()
         return view('report::diseasechart');
     }
     public function glucosegraphindex(){
-        $branches=BarcodeFormat::with('healthCenter')->get();   
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        }
+          
        
         $this->setPageData('Diabetes Mellitus','Diabetes Mellitus','fas fa-th-list');
         return view('report::glucosegraph',compact('branches'));
@@ -835,8 +841,13 @@ $total_bp_male_host = Htnmalehost::selectRaw('SUM(DistinctPatientCount) as Total
 
     public function AjaxFupDate(Request $request){
     //branches
-   $branches=BarcodeFormat::with('healthCenter')->get(); 
-    $this->setPageData(
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        }
+        $this->setPageData(
         'Followup Date',
         'Followup Date',
         'fas fa-th-list'
@@ -846,28 +857,34 @@ $total_bp_male_host = Htnmalehost::selectRaw('SUM(DistinctPatientCount) as Total
      public function Ajaxfupdatereport(Request $request)
     {
       
-        $barcode_prefix = $request->hc_id;
+        $barcode_prefixes = $request->hc_ids;
         $first_date = $request->fdate;
         $last_date = $request->ldate;
         $fupdates=FollowUpDate::whereBetween('CreateDate', [ $first_date,  $last_date])
-         ->where(function($query) use ($barcode_prefix) {
-            if ($barcode_prefix) {
-                $query->where('RegistrationId', 'LIKE', $barcode_prefix . '%');
-            }
+         ->where(function($query) use ($barcode_prefixes) {
+             if (!empty($barcode_prefixes)) {
+                $query->where(function($q) use ($barcode_prefixes) {
+                    foreach ($barcode_prefixes as $prefix) {
+                        $q->orWhere('RegistrationId', 'LIKE', $prefix . '%');
+                    }
+                });
+            } 
         })
         ->get();
     
      
         $resultCount = $fupdates->count();
-        $hcname=HealthCenter::where('HealthCenterCode',$barcode_prefix )->first('HealthCenterName');
+        $branches = BarcodeFormat::with('healthCenter')->whereIn('barcode_prefix', $barcode_prefixes)->get();
+        $hcnames = $branches->pluck('healthCenter.HealthCenterName')->toArray();
+        $healthcenter = implode(',', $hcnames) ?: 'All';
          $response = [
-            'healthcenter' => $hcname->HealthCenterName ?? 'All',	
+            'healthcenter' => $healthcenter,	
             'fupdates' => $fupdates,
             'resultCount' => $resultCount,
             'first_date' => $first_date,
             'last_date' => $last_date,
         ];
-        // return response()->json(compact('fupdates', 'resultCount', 'first_date', 'last_date'));
+
         return response()->json($response);
 
     }

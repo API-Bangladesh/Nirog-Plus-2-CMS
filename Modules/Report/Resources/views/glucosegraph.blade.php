@@ -199,7 +199,7 @@ caption {
       $('#hc_id').change(function () {
         
         var hcId = $(this).val();
-        console.log(hcId);
+      
 
       if (hcId) {
          
@@ -211,17 +211,15 @@ caption {
                      $('#warning-searching').removeClass('invisible');
                 },
                 success: function (data) {
-                    console.log(data)
                      $('#registration_id').prop('disabled', false);
                      $('#warning-searching').addClass('invisible');
                      
             // Add the default empty option
             $('#registration_id').html('<option value="">Select Patient</option>');
                         $.each(data, function (key, value) {
-                            console.log('gg')
+                    
                             
                              $("#registration_id").append('<option value="'+ value.RegistrationId+'">' + value.RegistrationId +'</option>');
-                            // $("#up_id").append('<option value="' + value.id + '" class="selectpicker">' + value.name + '</option>');
                         });
                         $("#registration_id").addClass("selectpicker");
                         $("#registration_id").selectpicker('refresh');
@@ -251,7 +249,7 @@ $('#refresh').click(function(){
 $('#search').click(function() {
     var daterange = $('#daterange').val();
    
-    console.log(daterange);
+   
     const parts = daterange.split(" - ");
 
 // Get the first date.
@@ -275,7 +273,7 @@ $('#search').click(function() {
             $('#warning-searching').addClass('invisible');
         },
         success: function(data) {
-            console.log(data);
+    
             $('#container_glucose').html(data);
         },
         error: function(xhr, ajaxOption, thrownError) {
