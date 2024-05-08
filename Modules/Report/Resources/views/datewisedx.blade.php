@@ -61,7 +61,8 @@
                             <div class="form-group col-md-3">
                                 <label for="name">Branches</label>
 
-                                <select class="selectpicker" data-live-search="true" name="hc_id" id="hc_id">
+                        
+                                  <select class="selectpicker" data-actions-box="true" data-live-search="true" name="hc_id[]" id="hc_id" multiple>
                                     <option value="">Select Branch</option> <!-- Empty option added -->
                                     @foreach($branches as $branch)
                                     <option value="{{$branch->barcode_prefix}}">{{$branch->healthCenter->HealthCenterName}}</option>
@@ -134,10 +135,7 @@
     var end = moment();
 
 
-    function cb(start, end) {
-        console.log("Selected Date Range: " + start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-       
-    }
+    
 
     $('input[name="daterange"]').daterangepicker({
         startDate: start,
@@ -155,9 +153,9 @@
             'This Year': [moment().startOf('year'), moment().endOf('year')],
             // Add more custom ranges here...
         }
-    }, cb);
+    });
 
-    cb(start, end);
+
     $('.daterangepicker').mouseleave(function() {
         $(this).hide();
     });
@@ -167,7 +165,7 @@
 
 
     var table;
-    var healthcenter='';
+    var healthcenter=[];
     var collectionDate='';
     var patients;
     var now = new Date();
@@ -200,7 +198,7 @@
         $.ajax({
             type: "GET",
             url: "{{ url('date-wise-dx') }}",
-            data: { hc_id: hc_id, fdate: fdate, ldate: ldate },
+            data: { hc_ids: hc_id, fdate: fdate, ldate: ldate },
             beforeSend: function () {
                 $('#warning-searching').removeClass('invisible');
             },
@@ -259,54 +257,6 @@
 },
 
 
-            // success: function (response) {
-            //     var results = response.results;
-            //     healthcenter = response.healthcenter;
-            //     var firstDate = new Date(response.first_date);
-            //     var lastDate = new Date(response.last_date);
-
-            //         var formatDate = function (date) {
-            //         var day = date.getDate().toString().padStart(2, '0');
-            //         var monthNames = [
-            //             "January", "February", "March", "April", "May", "June",
-            //             "July", "August", "September", "October", "November", "December"
-            //         ];
-            //         var monthName = monthNames[date.getMonth()];
-            //         var year = date.getFullYear();
-            //         return day + "-" + monthName + "-" + year;
-            //     };
-
-            //     collectionDate = formatDate(firstDate) + "_To_" + formatDate(lastDate);
-            //      console.log("Results:", results);
-               
-            //     patients=response.resultCount;
-            
-            //         var table = $('#normal-table tbody');
-
-            //         // Clear the existing table rows
-            //         table.empty();
-
-            //         // Create header row
-            //       var headerRow = $('<tr></tr>');
-            //         headerRow.append('<th>Provisional DX</th>');
-            //         Object.keys(results).forEach(function (date) {
-            //             headerRow.append('<th>' + date + '</th>');
-            //         });
-            //         table.append(headerRow);
-
-            //         // Create data rows
-            //         Object.keys(results).forEach(function (diagnosis) {
-            //             var dataRow = $('<tr></tr>');
-            //             dataRow.append('<td>' + diagnosis + '</td>');
-
-            //             Object.keys(results[diagnosis]).forEach(function (date) {
-            //                 dataRow.append('<td>' + results[diagnosis][date] + '</td>');
-            //             });
-
-            //             table.append(dataRow);
-            //         });
-
-            // },
         });
 
         document.getElementById('export-button').addEventListener('click', function () {

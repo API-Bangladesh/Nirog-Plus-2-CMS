@@ -329,11 +329,6 @@
     var end = moment();
 
 
-    function cb(start, end) {
-        console.log("Selected Date Range: " + start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-       
-    }
-
     $('input[name="daterange"]').daterangepicker({
         startDate: start,
         endDate: end,
@@ -350,9 +345,9 @@
             'This Year': [moment().startOf('year'), moment().endOf('year')],
             // Add more custom ranges here...
         }
-    }, cb);
+    });
 
-    cb(start, end);
+
     $('.daterangepicker').mouseleave(function() {
         $(this).hide();
     });
@@ -513,20 +508,12 @@
                let cc_name=response.cc_name ? response.cc_name : 'N/A';
                let union=response.union ? response.union : 'N/A';
                let upazila=response.upazila ? response.upazila : 'N/A';
-
-
                $('#diabetes').text(total_diabetes);
                $('#hypertension').text(total_htn);
                $('#pregnant').text(pregnant);
                $('#ccname').text(cc_name);
                $('#union').text(union);
-               $('#upazilla').text(upazila);
-         
-
-                 
-
-
-             
+               $('#upazilla').text(upazila);             
                $('#bpmalehost').text(bpmalehost);
                $('#bpmalerohingya').text(bpmalerohingya);
                $('#bpfemalehost').text(bpfemalehost);
