@@ -197,12 +197,6 @@
     var start = moment().subtract(29, 'days');
     var end = moment();
 
-
-    function cb(start, end) {
-        console.log("Selected Date Range: " + start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-       
-    }
-
     $('input[name="daterange"]').daterangepicker({
         startDate: start,
         endDate: end,
@@ -219,9 +213,8 @@
            
             // Add more custom ranges here...
         }
-    }, cb);
+    });
 
-    cb(start, end);
     $('.daterangepicker').mouseleave(function() {
         $(this).hide();
     });
@@ -358,7 +351,7 @@
             success: function (response) {
          
                 var data = response.data_dump;
-                 console.log(data);
+     
                 healthcenter = response?.healthcenter?.HealthCenterName || 'ALL';
   
               

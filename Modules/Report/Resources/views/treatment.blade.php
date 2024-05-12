@@ -58,7 +58,7 @@
                             <div class="form-group col-md-3">
                                 <label for="name">Branches</label>
 
-                                <select class="selectpicker" data-live-search="true" name="hc_id" id="hc_id">
+                                <select class="selectpicker" data-actions-box="true" data-live-search="true" name="hc_id[]" id="hc_id" multiple>
                                     <option value="">Select Branch</option> <!-- Empty option added -->
                                     @foreach($branches as $branch)
                                     <option value="{{$branch->barcode_prefix}}">{{$branch->healthCenter->HealthCenterName}}</option>
@@ -139,10 +139,7 @@
     var end = moment();
 
 
-    function cb(start, end) {
-        console.log("Selected Date Range: " + start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-       
-    }
+ 
 
     $('input[name="daterange"]').daterangepicker({
         startDate: start,
@@ -160,9 +157,9 @@
             'This Year': [moment().startOf('year'), moment().endOf('year')],
             // Add more custom ranges here...
         }
-    }, cb);
+    });
 
-    cb(start, end);
+ 
     $('.daterangepicker').mouseleave(function() {
         $(this).hide();
     });
@@ -172,7 +169,7 @@
 
 
     var table;
-    var healthcenter='';
+    var healthcenter=[];
     var collectionDate='';
     var patients;
     var now = new Date();
@@ -243,9 +240,12 @@
                 v: 'App Name: Nirog Plus'
             }]);
 
+            function encodeXML(s) {
+                return s.replace(/&/g, '&amp;');
+            }
             var r2 = Addrow(2, [{
                 k: 'A',
-                v: 'Branch: '+ healthcenter
+                v: 'Branch:' + encodeXML(healthcenter),
             }]);
 
             var r3 = Addrow(3, [{
@@ -305,7 +305,7 @@
         $.ajax({
             type: "GET",
             url: "{{ url('treatment-report') }}",
-            data: { hc_id: hc_id, fdate: fdate, ldate: ldate },
+            data: { hc_ids: hc_id, fdate: fdate, ldate: ldate },
             beforeSend: function () {
                 $('#warning-searching').removeClass('invisible');
             },

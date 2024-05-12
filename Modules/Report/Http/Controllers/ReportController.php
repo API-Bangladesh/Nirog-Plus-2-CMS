@@ -192,13 +192,23 @@ public function diseaseindex()
     }
       public function FullDataDump(){
  
-       $branches=BarcodeFormat::with('healthCenter')->get(); 
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        }
         $this->setPageData('Full Data Dump','Full Data Dump','fas fa-th-list');
         return view('report::fulldatadump',compact('branches'));
     }
      public function FullDataExport(){
  
-       $branches=BarcodeFormat::with('healthCenter')->get(); 
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        }
         $this->setPageData('Full Data Export','Full Data Export','fas fa-th-list');
         return view('report::fulldataexport',compact('branches'));
     }
@@ -1078,7 +1088,7 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
         
         $first_date = $request->fdate;
         $last_date = $request->ldate;
-        $barcode_prefix = $request->hc_id;
+        $barcode_prefixes = $request->hc_ids;
 
          $results = DB::table("MDataTreatmentSuggestion")
         ->select(
@@ -1102,10 +1112,14 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
     
     ->whereDate('MDataTreatmentSuggestion.CreateDate', '>=', $first_date)
     ->whereDate('MDataTreatmentSuggestion.CreateDate', '<=', $last_date)
-    ->where(function($query) use ($barcode_prefix) {
-        if ($barcode_prefix) {
-            $query->where('Patient.RegistrationId', 'LIKE', $barcode_prefix . '%');
-        }
+    ->where(function($query) use ($barcode_prefixes) {
+         if (!empty($barcode_prefixes)) {
+                $query->where(function($q) use ($barcode_prefixes) {
+                    foreach ($barcode_prefixes as $prefix) {
+                        $q->orWhere('Patient.RegistrationId', 'LIKE', $prefix . '%');
+                    }
+                });
+        } 
     })
     ->join('Patient', 'MDataTreatmentSuggestion.PatientId', '=', 'Patient.PatientId')
     ->join('RefGender', 'RefGender.GenderId', '=', 'Patient.GenderId')
@@ -1131,9 +1145,11 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
     )
     ->get();
             $resultCount = $results->count();
-            $hcname=HealthCenter::where('HealthCenterCode',$barcode_prefix )->first('HealthCenterName');
+            $branches = BarcodeFormat::with('healthCenter')->whereIn('barcode_prefix', $barcode_prefixes)->get();
+            $hcnames = $branches->pluck('healthCenter.HealthCenterName')->toArray();
+            $healthcenter = implode(',', $hcnames) ?: 'All';
             $response = [
-                'healthcenter' => $hcname->HealthCenterName ?? 'All',	
+                'healthcenter' => $healthcenter,	
                 'results' => $results,
                 'resultCount' => $resultCount,
                 'first_date' => $first_date,
