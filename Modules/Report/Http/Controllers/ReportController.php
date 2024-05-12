@@ -152,10 +152,16 @@ public function diseaseindex()
 
     }
      public function TopTenDiseases(){
-        $healthcenters=BarcodeFormat::with('healthCenter')->get();
+        
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        } 
         $this->setPageData('Chart of Diseases by Branch','Chart of Diseases by Branch','fas fa-th-list');
 
-        return view('report::toptendiseases',compact('healthcenters'));
+        return view('report::toptendiseases',compact('branches'));
 
     }
       public function DistrictwisePatientIndex(Request $request){
@@ -1332,16 +1338,23 @@ $results = DB::table("MDataPatientReferral")
     public function AjaxTopTenDiseases(Request $request){
         $startDate = $request->starting_date;
         $endDate = $request->ending_date;
-        $hcId = $request->hc_id;
+        $hcIds = $request->hc_ids;
         $illnesses=[];
 
 
-        $illnesses['branch']=HealthCenter::where('HealthCenterCode',$hcId)->get('HealthCenterName');
+     
+        $branches = BarcodeFormat::with('healthCenter')->whereIn('barcode_prefix', $hcIds)->get();
+        $hcnames = $branches->pluck('healthCenter.HealthCenterName')->toArray();
+        $illnesses['branch'] = implode(',', $hcnames) ?: 'All';
 
         $illnesses['diseases'] = DB::table('MDataPatientIllnessHistory')
             ->join('RefIllness', 'MDataPatientIllnessHistory.IllnessId', '=', 'RefIllness.IllnessId')
             ->join('Patient', 'MDataPatientIllnessHistory.PatientId', '=', 'Patient.PatientId')
-            ->where('Patient.RegistrationId', 'LIKE', $hcId . '%')
+             ->where(function ($query) use ($hcIds) {
+                foreach ($hcIds as $hcId) {
+                $query->orWhere('Patient.RegistrationId', 'LIKE', $hcId . '%');
+             }
+            })
             ->whereBetween(DB::raw('CAST(MDataPatientIllnessHistory.CreateDate AS DATE)'),[$startDate, $endDate])
             ->groupBy('RefIllness.IllnessId', 'RefIllness.IllnessCode')
             ->orderByRaw('COUNT(DISTINCT MDataPatientIllnessHistory.PatientId) DESC')
@@ -1350,6 +1363,7 @@ $results = DB::table("MDataPatientReferral")
             ->get();
 
             // dd( $illnesses['diseases']);
+       
 
          return view('report::toptendiseases_ajax',compact('illnesses'));
     }
@@ -1594,7 +1608,12 @@ $results = DB::table("MDataPatientReferral")
 
     public function PatientBloodPressureGraph(){
       
-        $branches=BarcodeFormat::with('healthCenter')->get();        
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        }      
         $this->setPageData('Patient Blood Pressure Graph','Patient wise Blood Pressure Graph','fas fa-th-list');
 
         return view('report::patientbloodpressuregraph',compact('branches'));
