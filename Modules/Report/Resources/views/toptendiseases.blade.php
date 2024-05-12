@@ -14,6 +14,8 @@
     border: 1px solid #ccc;
 }
 
+
+
 .highcharts-data-table td,
 .highcharts-data-table th {
     border: 1px solid #ccc;
@@ -25,7 +27,7 @@
 caption {
     padding-top: 1.5rem;
     padding-bottom: 1.5rem;
-    color: #040505;
+    color: #090e0e;
     text-align: left;
     caption-side: top;
     font-weight: bold
@@ -34,8 +36,8 @@ caption {
 </style>
 @endpush
 
-<script src="js/dataTables.buttons.min.js"></script>
-<script src="js/buttons.html5.min.js"></script>
+{{-- <script src="js/dataTables.buttons.min.js"></script>
+<script src="js/buttons.html5.min.js"></script> --}}
 
 
 @section('content')
@@ -89,15 +91,12 @@ caption {
                             <div class="form-group col-md-3">
                                 <label for="name">Select Branch</label>
 
-                                <select class="selectpicker" data-live-search="true" name="hc_id" id="hc_id">
+                            <select class="selectpicker" data-actions-box="true" data-live-search="true" name="hc_id[]" id="hc_id" multiple>
                                     <option value="">Select Branch</option> <!-- Empty option added -->
-
-                                    @foreach($healthcenters as $healthcenter)
-                                        <option value="{{$healthcenter->barcode_prefix}}">{{$healthcenter->healthCenter->HealthCenterName}}</option>
-
+                                    @foreach($branches as $branch)
+                                    <option value="{{$branch->barcode_prefix}}">{{$branch->healthCenter->HealthCenterName}}</option>
                                     @endforeach
-
-                                </select>
+                            </select>
                             </div>
                             <div class="col-md-2 warning-searching invisible" id="warning-searching">
                                 <span class="text-danger" id="warning-message">Searching...Please Wait</span>
@@ -129,13 +128,6 @@ caption {
                         </div>
                     </div>
 
-                        {{-- <div class="row">
-                            <div class="col-md-12">
-                                <figure class="highcharts-figure">
-                                    <div id="container_diseases"></div>
-                                </figure>
-                            </div>
-                        </div> --}}
                     </form>
 
 
@@ -156,8 +148,8 @@ caption {
 @endsection
 
 @push('script')
- <script src="js/dataTables.buttons.min.js"></script>
- <script src="js/buttons.html5.min.js"></script>
+ {{-- <script src="js/dataTables.buttons.min.js"></script>
+ <script src="js/buttons.html5.min.js"></script> --}}
  {{-- <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script> --}}
 <script src="js/highcharts.js"></script>
@@ -228,7 +220,7 @@ $('#search').click(function() {
     $.ajax({
         url: "{{ url('ajax-top-ten-diseases') }}",
         type: "get",
-        data: { starting_date: fdate, ending_date: ldate, hc_id: hc_id },
+        data: { starting_date: fdate, ending_date: ldate, hc_ids: hc_id },
         dataType: "html",
         beforeSend: function(){
             $('#warning-searching').removeClass('invisible');

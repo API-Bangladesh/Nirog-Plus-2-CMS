@@ -2,7 +2,7 @@
 
 var chartData = {!! json_encode($illnesses['diseases']) !!};
 var branch = {!! json_encode($illnesses['branch']) !!};
-var branchName = branch && branch.length > 0 ? branch[0].HealthCenterName : 'All Branch';
+
 
 
 
@@ -11,7 +11,8 @@ var branchName = branch && branch.length > 0 ? branch[0].HealthCenterName : 'All
             type: 'column'
         },
         title: {
-            text: 'Top 10 Diseases in '+ branchName
+            y:40,
+            text: 'Top 10 Diseases in '+ branch
         },
         credits: {
             enabled: false
@@ -104,7 +105,12 @@ var branchName = branch && branch.length > 0 ? branch[0].HealthCenterName : 'All
         }],
     exporting: {
 
-    
+         chartOptions: {
+            chart: {
+                width: 1920, // Set the desired width of the exported image
+                height: 1080 // Set the desired height of the exported image
+            }
+        },
         buttons: {
             contextButton: {
                 menuItems: [

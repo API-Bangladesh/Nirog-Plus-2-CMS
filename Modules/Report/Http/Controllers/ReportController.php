@@ -152,10 +152,16 @@ public function diseaseindex()
 
     }
      public function TopTenDiseases(){
-        $healthcenters=BarcodeFormat::with('healthCenter')->get();
+        
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        } 
         $this->setPageData('Chart of Diseases by Branch','Chart of Diseases by Branch','fas fa-th-list');
 
-        return view('report::toptendiseases',compact('healthcenters'));
+        return view('report::toptendiseases',compact('branches'));
 
     }
       public function DistrictwisePatientIndex(Request $request){
@@ -192,13 +198,23 @@ public function diseaseindex()
     }
       public function FullDataDump(){
  
-       $branches=BarcodeFormat::with('healthCenter')->get(); 
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        }
         $this->setPageData('Full Data Dump','Full Data Dump','fas fa-th-list');
         return view('report::fulldatadump',compact('branches'));
     }
      public function FullDataExport(){
  
-       $branches=BarcodeFormat::with('healthCenter')->get(); 
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        }
         $this->setPageData('Full Data Export','Full Data Export','fas fa-th-list');
         return view('report::fulldataexport',compact('branches'));
     }
@@ -1078,7 +1094,7 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
         
         $first_date = $request->fdate;
         $last_date = $request->ldate;
-        $barcode_prefix = $request->hc_id;
+        $barcode_prefixes = $request->hc_ids;
 
          $results = DB::table("MDataTreatmentSuggestion")
         ->select(
@@ -1102,10 +1118,14 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
     
     ->whereDate('MDataTreatmentSuggestion.CreateDate', '>=', $first_date)
     ->whereDate('MDataTreatmentSuggestion.CreateDate', '<=', $last_date)
-    ->where(function($query) use ($barcode_prefix) {
-        if ($barcode_prefix) {
-            $query->where('Patient.RegistrationId', 'LIKE', $barcode_prefix . '%');
-        }
+    ->where(function($query) use ($barcode_prefixes) {
+         if (!empty($barcode_prefixes)) {
+                $query->where(function($q) use ($barcode_prefixes) {
+                    foreach ($barcode_prefixes as $prefix) {
+                        $q->orWhere('Patient.RegistrationId', 'LIKE', $prefix . '%');
+                    }
+                });
+        } 
     })
     ->join('Patient', 'MDataTreatmentSuggestion.PatientId', '=', 'Patient.PatientId')
     ->join('RefGender', 'RefGender.GenderId', '=', 'Patient.GenderId')
@@ -1131,9 +1151,11 @@ $results = Address::with('districtAddress','upazillaAddress','unionAddress')->se
     )
     ->get();
             $resultCount = $results->count();
-            $hcname=HealthCenter::where('HealthCenterCode',$barcode_prefix )->first('HealthCenterName');
+            $branches = BarcodeFormat::with('healthCenter')->whereIn('barcode_prefix', $barcode_prefixes)->get();
+            $hcnames = $branches->pluck('healthCenter.HealthCenterName')->toArray();
+            $healthcenter = implode(',', $hcnames) ?: 'All';
             $response = [
-                'healthcenter' => $hcname->HealthCenterName ?? 'All',	
+                'healthcenter' => $healthcenter,	
                 'results' => $results,
                 'resultCount' => $resultCount,
                 'first_date' => $first_date,
@@ -1316,16 +1338,23 @@ $results = DB::table("MDataPatientReferral")
     public function AjaxTopTenDiseases(Request $request){
         $startDate = $request->starting_date;
         $endDate = $request->ending_date;
-        $hcId = $request->hc_id;
+        $hcIds = $request->hc_ids;
         $illnesses=[];
 
 
-        $illnesses['branch']=HealthCenter::where('HealthCenterCode',$hcId)->get('HealthCenterName');
+     
+        $branches = BarcodeFormat::with('healthCenter')->whereIn('barcode_prefix', $hcIds)->get();
+        $hcnames = $branches->pluck('healthCenter.HealthCenterName')->toArray();
+        $illnesses['branch'] = implode(',', $hcnames) ?: 'All';
 
         $illnesses['diseases'] = DB::table('MDataPatientIllnessHistory')
             ->join('RefIllness', 'MDataPatientIllnessHistory.IllnessId', '=', 'RefIllness.IllnessId')
             ->join('Patient', 'MDataPatientIllnessHistory.PatientId', '=', 'Patient.PatientId')
-            ->where('Patient.RegistrationId', 'LIKE', $hcId . '%')
+             ->where(function ($query) use ($hcIds) {
+                foreach ($hcIds as $hcId) {
+                $query->orWhere('Patient.RegistrationId', 'LIKE', $hcId . '%');
+             }
+            })
             ->whereBetween(DB::raw('CAST(MDataPatientIllnessHistory.CreateDate AS DATE)'),[$startDate, $endDate])
             ->groupBy('RefIllness.IllnessId', 'RefIllness.IllnessCode')
             ->orderByRaw('COUNT(DISTINCT MDataPatientIllnessHistory.PatientId) DESC')
@@ -1334,6 +1363,7 @@ $results = DB::table("MDataPatientReferral")
             ->get();
 
             // dd( $illnesses['diseases']);
+       
 
          return view('report::toptendiseases_ajax',compact('illnesses'));
     }
@@ -1578,7 +1608,12 @@ $results = DB::table("MDataPatientReferral")
 
     public function PatientBloodPressureGraph(){
       
-        $branches=BarcodeFormat::with('healthCenter')->get();        
+        $loginPrefix = session('login_prefix');
+        if($loginPrefix == 'admin'){
+            $branches=BarcodeFormat::with('healthCenter')->get(); 
+        }else{
+            $branches=BarcodeFormat::with('healthCenter')->where('barcode_prefix', $loginPrefix)->get(); 
+        }      
         $this->setPageData('Patient Blood Pressure Graph','Patient wise Blood Pressure Graph','fas fa-th-list');
 
         return view('report::patientbloodpressuregraph',compact('branches'));
